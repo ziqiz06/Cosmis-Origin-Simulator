@@ -1,5 +1,5 @@
 """
-story.py
+cosmic_origins/story.py
 Journey definitions, cosmic stages, choice menus, and educational text.
 """
 

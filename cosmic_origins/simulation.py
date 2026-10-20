@@ -1,5 +1,5 @@
 """
-simulation.py
+cosmic_origins/simulation.py
 Physics and habitability logic for Cosmic Origins Adventure.
 """
 import math
@@ -232,11 +232,12 @@ class World:
         """Returns (factor, points_earned, max_points) for the result breakdown."""
         if self.journey == "gas_giant":
             moon_pts = {"large": 30, "small": 10, "none": 0}[self.moon]
+            mass_pts = 15 if 30 <= self.mass_earth <= 318 else (-10 if self.mass_earth > 318 else 0)
             return [
                 ("Large moon system", moon_pts, 30),
                 ("Magnetic field (moon protection)", {"strong": 25, "weak": 12, "absent": 0}[self.magnetic_field], 25),
                 ("Distance (near HZ)", 20 if self.in_habitable_zone else 0, 20),
-                ("Mass (Jupiter-range optimal)", 15 if 30 <= self.mass_earth <= 318 else 0, 15),
+                ("Mass (Jupiter-range optimal)", mass_pts, 15),
             ]
         if self.journey == "star_system":
             star_pts = {"K": 35, "G": 30, "F": 20, "M": 15}[self.star_type]

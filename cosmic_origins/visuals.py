@@ -1,12 +1,12 @@
 """
-visuals.py
+cosmic_origins/visuals.py
 Voxel / block-game style HTML canvas for cosmic stages + SVG cross-section diagrams.
 Drop-in replacement for the original visuals.py API.
 """
 import json
 import math
 import random
-from simulation import World
+from .simulation import World
 
 
 # ── Multi-planet system builder ───────────────────────────────────────────────
@@ -586,15 +586,6 @@ def _iso_block(x: float, y: float, size: float, color: str, opacity: float = 1.0
     return f'<rect x="{x:.0f}" y="{y:.0f}" width="{size:.0f}" height="{size:.0f}" fill="{color}" opacity="{opacity}"/>'
 
 
-def _voxel_ring(cx: int, cy: int, r: int, color: str, step: int = 10, opacity: float = 1.0) -> str:
-    bits = []
-    for yy in range(-r, r + 1, step):
-        for xx in range(-r, r + 1, step):
-            if xx * xx + yy * yy <= r * r:
-                bits.append(_iso_block(cx + xx, cy + yy, step, color, opacity))
-    return "".join(bits)
-
-
 # ── Cross-section SVGs ────────────────────────────────────────────────────────
 
 def cross_section(world: World) -> str:
@@ -735,7 +726,7 @@ def _icy_moon_svg(w: World) -> str:
 
 def _star_system_svg(w: World) -> str:
     """Centered orbital diagram — star in the middle, all planets fit within SVG."""
-    from simulation import HABITABLE_ZONES
+    from .simulation import HABITABLE_ZONES
     hz_in, hz_out = HABITABLE_ZONES.get(w.star_type, (0.7, 1.5))
 
     star_colors  = {"M": "#ff7755", "K": "#ffaa55", "G": "#ffdd55", "F": "#ffffee"}
@@ -792,57 +783,3 @@ def _star_system_svg(w: World) -> str:
   <text x="140" y="14" text-anchor="middle" fill="#9ce89c" font-size="8" font-family="monospace">GREEN RING = HABITABLE ZONE</text>
   <text x="140" y="273" text-anchor="middle" fill="#8190a6" font-size="8" font-family="monospace">{w.display_name} · {w.num_planets} PLANETS</text>
 </svg>"""
-
-
-# ── Habitability factors breakdown ────────────────────────────────────────────
-
-def factors_html(world: World) -> str:
-    """
-    Return a voxel-style HTML table showing which factors helped or hurt habitability.
-    Used on the result page.
-    """
-    from simulation import (
-        WATER_SCORE, ATM_SCORE, MAG_SCORE, GEO_SCORE, IMPACT_MOD,
-    )
-
-    if world.journey in ("gas_giant", "star_system"):
-        return "<p style='color:#93a1b8;font-family:monospace'>No surface habitability for this world type.</p>"
-
-    if world.journey == "icy_moon":
-        rows = [
-            ("Subsurface ocean", 35 if world.subsurface_ocean else 0, 35),
-            ("Tidal heating",    {"none": 5, "moderate": 30, "strong": 15}[world.tidal_heating], 30),
-            ("Magnetic shielding", MAG_SCORE.get(world.magnetic_field, 0) // 2, 7),
-            ("Geological activity", GEO_SCORE.get(world.geology, 0), 15),
-        ]
-    else:
-        temp_pts = 30 if -20 <= world.surface_temp_c <= 65 else (10 if -60 <= world.surface_temp_c <= 100 else 0)
-        rows = [
-            ("Temperature range",    temp_pts, 30),
-            ("Water presence",       WATER_SCORE.get(world.water, 0), 25),
-            ("Atmosphere",           ATM_SCORE.get(world.atmosphere, 0), 20),
-            ("Magnetic field",       MAG_SCORE.get(world.magnetic_field, 0), 15),
-            ("Geological activity",  GEO_SCORE.get(world.geology, 0), 15),
-            ("Impact history",       IMPACT_MOD.get(world.impact_history, 0), 5),
-        ]
-
-    cells = ""
-    for label, pts, max_pts in rows:
-        pct = int(pts / max_pts * 100) if max_pts else 0
-        bar_col = "#4ecf58" if pts > 0 else ("#d84a32" if pts < 0 else "#586375")
-        cells += (
-            "<tr>"
-            f"<td style='padding:5px 8px;color:#d9e2f1;font-size:12px;font-family:monospace;text-shadow:1px 1px #000'>{label}</td>"
-            "<td style='padding:5px 8px;width:130px'>"
-            "<div style='background:#101828;border:2px solid #26354f;height:13px;box-shadow:3px 3px 0 #000'>"
-            f"<div style='background:{bar_col};width:{max(0, pct)}%;height:13px'></div>"
-            "</div></td>"
-            f"<td style='padding:5px 8px;color:#aebbd0;font-size:11px;font-family:monospace'>{pts:+d}/{max_pts}</td>"
-            "</tr>"
-        )
-
-    return (
-        "<table style='border-collapse:collapse;width:100%;background:#07101f;border:2px solid #26354f;box-shadow:4px 4px 0 #000'>"
-        f"{cells}"
-        "</table>"
-    )

@@ -1,6 +1,17 @@
 # Cosmic Origins Adventure
 
-A choose-your-own-adventure science simulation covering 13.8 billion years of cosmic history — from the Big Bang to the formation of your own world. Built for a general education science course covering Big Bang nucleosynthesis, stellar evolution, astrobiology, and the origin of life.
+A choose-your-own-adventure science simulation covering 13.8 billion years of cosmic history — from the Big Bang to the formation of your own world. Built for a Harvard general education science course covering Big Bang nucleosynthesis, stellar evolution, astrobiology, and the origin of life.
+
+**Python · Streamlit · OpenAI-compatible LLM API (K2-Think-v2) · HTML5 Canvas · SVG · pytest**
+
+<!-- Add once deployed: **[Live demo](https://your-app.streamlit.app)** -->
+<!-- Add a screenshot or GIF: ![Cosmic Origins demo](docs/demo.gif) -->
+
+**Highlights**
+- A physics-based world model: energy-balance surface temperature, star-specific habitable zones, and a habitability score built from water, atmosphere, magnetic field, geology, and impact history.
+- 5 journey types × 8 cosmic stages, each with a procedurally drawn canvas animation and an SVG cross-section of the final world.
+- LLM-generated world names, lore, and stories, with prompt and output-parsing logic that strips the model's visible reasoning, plus offline fallback text so the app works without an API key.
+- Unit tests covering the physics and scoring model.
 
 ---
 
@@ -80,17 +91,19 @@ Stage narrations (the "you are a hydrogen atom…" text at each stage) are pre-w
 
 ## Habitability Score
 
-Computed from the world's physical properties at the end of stage 8:
+Computed from the world's physical properties at the end of stage 8 (rocky and Earth-like journeys; capped at 0–100):
 
-| Factor | Max Points |
+| Factor | Points |
 |---|---|
-| Temperature in liquid-water range | +30 |
-| Liquid or abundant water | +25 |
-| Atmosphere (thin or thick) | +20 |
-| Magnetic field present | +15 |
-| Rocky planet type | +10 |
+| Temperature in liquid-water range (−20 to 65 °C; partial credit −60 to 100 °C) | up to +30 |
+| Water (ice → abundant) | up to +25 |
+| Atmosphere (thin or thick best; runaway greenhouse penalised) | up to +20 |
+| Magnetic field | up to +15 |
+| Geological activity | up to +15 |
+| Impact history (calm +5, heavy −15) | −15 to +5 |
+| Large stabilising moon | +5 |
 
-A world reaches **"Life Confirmed"** only if it meets all criteria simultaneously.
+Gas giants, icy moons, and star systems use their own scoring (moon systems, tidal heating, star stability, etc.) — see `cosmic_origins/simulation.py`. An Earth-like world reaches **"Life Confirmed"** only if it matches Earth on every key property simultaneously.
 
 ---
 
@@ -102,11 +115,10 @@ python3 -m venv venv
 source venv/bin/activate
 
 # 2. Install dependencies
-pip install streamlit openai python-dotenv
+pip install -r requirements.txt
 
-# 3. Add your API key to .env.local
+# 3. (Optional) Add your API key to .env.local — without it, the app uses built-in fallback text
 #    K2_API_KEY=your-key-here
-#    K2_API_URL=https://api.k2think.ai/v1/chat/completions
 #    K2_MODEL=MBZUAI-IFM/K2-Think-v2
 
 # 4. Run
@@ -115,16 +127,28 @@ streamlit run app.py
 
 The app opens at `http://localhost:8501`.
 
+### Running tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 ---
 
 ## File Structure
 
 ```
-gened_proj/
-├── app.py          # Streamlit UI, routing, result page, canvas injection
-├── ai.py           # K2-Think-v2 API calls with BEGIN: extraction strategy
-├── simulation.py   # World dataclass, habitability scoring, build_world()
-├── story.py        # Stage definitions, pre-written narratives, journey configs
-├── visuals.py      # HTML5 canvas animations and SVG cross-section diagrams
-└── .env.local      # API key (not committed)
+cosmic-origins-simulator/
+├── app.py                  # Streamlit entry point: UI, routing, result page
+├── cosmic_origins/
+│   ├── simulation.py       # World model: temperature, habitable zones, habitability scoring
+│   ├── story.py            # Journeys, stage definitions, pre-written narratives, choices
+│   ├── visuals.py          # HTML5 canvas animations and SVG cross-section diagrams
+│   └── ai.py               # K2-Think-v2 calls, reasoning-stripping parser, fallbacks
+├── tests/
+│   └── test_simulation.py  # Physics and scoring tests
+├── requirements.txt
+├── requirements-dev.txt
+└── .env.local              # API key (not committed)
 ```

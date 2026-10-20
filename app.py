@@ -4,20 +4,20 @@ Page flow:  home  →  journey (stage by stage)  →  result
 """
 import streamlit as st
 
-from simulation import (
+from cosmic_origins.simulation import (
     EARTH, HABITABLE_ZONES, STAR_LABELS,
     build_world, calc_temp, in_hz,
 )
 import random
 
-from story import (
+from cosmic_origins.story import (
     ACCRETION_CHOICES, DISTANCE_OPTIONS,
     EVOLUTION_CHOICES, GAS_GIANT_EVOLUTION,
     ICY_MOON_EVOLUTION, JOURNEY_DEFAULTS,
     JOURNEYS, STAGE_NARRATIVES, STAGES, STAR_SYSTEM_EVOLUTION,
 )
-from visuals import cross_section, stage_canvas
-from ai import (
+from cosmic_origins.visuals import cross_section, stage_canvas
+from cosmic_origins.ai import (
     cosmic_speculation,
     generate_world_identity,
     result_narrative,

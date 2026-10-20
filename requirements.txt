@@ -1,3 +1,6 @@
-streamlit
-openai
-python-dotenv
+# Pinned to the versions the app was built and tested with (Python 3.13).
+# streamlit is pinned on purpose: newer releases remove st.components.v1.html,
+# which the stage animations use.
+streamlit==1.57.0
+openai==2.33.0
+python-dotenv==1.2.2
