@@ -1,6 +1,6 @@
 # Cosmic Origins Adventure
 
-A choose-your-own-adventure science simulation covering 13.8 billion years of cosmic history — from the Big Bang to the formation of your own world. Built for a Harvard general education science course covering Big Bang nucleosynthesis, stellar evolution, astrobiology, and the origin of life.
+A fun choose-your-own-adventure science simulation covering 13.8 billion years of cosmic history — from the Big Bang to the formation of your own world. 
 
 **Python · Streamlit · OpenAI-compatible LLM API (K2-Think-v2) · HTML5 Canvas · SVG · pytest**
 
